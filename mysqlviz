@@ -11,7 +11,9 @@ $standard_table_prefixes=array('','tbl','tbl_','table','table_');
 $standard_table_suffixes=array('','s','s_table','_table','table');
 
 # command line options
-$opts = getopt('f:rh:');
+$opts = getopt('f:rh:', ['no-columns']);
+
+$skip_columns = array_key_exists('no-columns', $opts);
 
 # input validation
 if(isset($opts['h']) || !isset($opts['f'])) {
@@ -128,8 +130,10 @@ if(isset($opts['r'])) {
  print " ranksep=3\n";
  foreach(array_keys($tables) as $table) {
   print " $table [\n  shape=record\n  width=4\n  label=\"" . strtoupper($table);
-  foreach(array_keys($tables[$table]['fields']) as $field) {
-   print "|<$field>$field";
+  if(!$skip_columns) {
+    foreach(array_keys($tables[$table]['fields']) as $field) {
+     print "|<$field>$field";
+    }
   }
   if(is_array($tables[$table]['fk'])) {
    foreach(array_keys($tables[$table]['fk']) as $fk_field) {
@@ -137,7 +141,12 @@ if(isset($opts['r'])) {
     #if(is_array($tables[$tables[$table]['fk'][$fk_field]['table']])) {
      $parent_table = $tables[$table]['fk'][$fk_field]['table'];
      $parent_column = $tables[$table]['fk'][$fk_field]['column'];
-     $relations .= " {$table}:{$fk_field} -> {$parent_table}:{$parent_column};\n";
+     if($skip_columns) {
+      $relations .= " {$table} -> {$parent_table};\n";
+     }
+     else {
+      $relations .= " {$table}:{$fk_field} -> {$parent_table}:{$parent_column};\n";
+     }
     #}
 
     if(!is_array($tables[$tables[$table]['fk'][$fk_field]['table']])) {
@@ -165,14 +174,24 @@ if(isset($opts['r'])) {
        # first try direct concatenation...
        $maybetable=$prefix.$matches[1].$suffix;
        if(is_array($tables[$maybetable])) {
-        $relations .= " $table:$field -> $maybetable:" . $tables[$maybetable]['pk'] . ";\n";
+        if($skip_columns) {
+         $relations .= " {$table} -> {$maybetable};\n";
+        }
+        else {
+         $relations .= " $table:$field -> $maybetable:" . $tables[$maybetable]['pk'] . ";\n";
+        }
         $done=1;
        }
        # otherwise try ucfirst()'d version
        else {
         $maybetable=$prefix.ucfirst($matches[1].$suffix);
         if(is_array($tables[$maybetable])) {
-         $relations .= " $table:$field -> $maybetable:" . $tables[$maybetable]['pk'] . ";\n";
+         if($skip_columns) {
+          $relations .= " {$table} -> {$maybetable};\n";
+         }
+         else {
+          $relations .= " $table:$field -> $maybetable:" . $tables[$maybetable]['pk'] . ";\n";
+         }
          $done=1;
 	}
        }
