@@ -135,7 +135,9 @@ if(isset($opts['r'])) {
    foreach(array_keys($tables[$table]['fk']) as $fk_field) {
     # only print if foreign table is known
     #if(is_array($tables[$tables[$table]['fk'][$fk_field]['table']])) {
-     $relations .= ' ' . $tables[$table]['fk'][$fk_field]['table'] . ':' . $tables[$table]['fk'][$fk_field]['column'] . " -> $table:$fk_field;\n";
+     $parent_table = $tables[$table]['fk'][$fk_field]['table'];
+     $parent_column = $tables[$table]['fk'][$fk_field]['column'];
+     $relations .= " {$table}:{$fk_field} -> {$parent_table}:{$parent_column};\n";
     #}
 
     if(!is_array($tables[$tables[$table]['fk'][$fk_field]['table']])) {
