@@ -211,9 +211,11 @@ function usage() {
  global $argv;
  print '[' . basename($argv[0]) . " - mysql + sqlite database visualisation tool]\n\n";
  print "usage:\n";
- print "  " . $argv[0] . " -f <sqldumpfile> [-r]\n";
- print "                                 ^--- 'redump' mode: generates a\n";
- print "                                      mysqldump command line to redump.\n";
+ print "  " . $argv[0] . " -f <sqldumpfile> [--no-columns] [-r]\n\n";
+ print "options:\n";
+ print "  -f             The source file\n";
+ print "  -r             'redump' mode: generates a mysqldump command line to redump.\n";
+ print "  --no-columns   Skip columns in output (only draw tables)\n\n";
  print "toolchain:\n";
  print " $ mysqldump -d db >db.sql          # MySQL: -d = 'no data', only structure\n";
  print "    - OR -\n";
